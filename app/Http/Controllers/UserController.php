@@ -2,64 +2,45 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
+use App\Http\Requests\UserRequest;
+use App\Services\UserService;
+use Illuminate\Http\JsonResponse;
 
 class UserController extends Controller
 {
-    public function index()
+    protected $userservice;
+
+    public function __construct(UserService $userservice)
     {
-        return response()->json(User::all(), 200);
+        $this->userservice = $userservice;
     }
 
-    public function store(Request $request)
+    public function index(): JsonResponse
     {
-        $validated = $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|email|unique:users,email',
-            'password' => 'required|string|min:6',
-        ]);
+        return response()->json($this->userservice->all());
+    }
 
-        $validated['password'] = Hash::make($validated['password']);
-
-        $user = User::create($validated);
-
+    public function store(UserRequest $request): JsonResponse
+    {
+        $user = $this->userservice->create($request->validated());
         return response()->json($user, 201);
     }
 
-    public function show(string $id)
+    public function show($id): JsonResponse
     {
-        $user = User::findOrFail($id);
+        return response()->json($this->userservice->find($id));
+    }
+
+    public function update(UserRequest $request, $id): JsonResponse
+    {
+        $user = $this->userservice->update($id, $request->validated());
         return response()->json($user);
     }
 
-    public function update(Request $request, string $id)
+    public function destroy($id): JsonResponse
     {
-        $user = User::findOrFail($id);
-
-        $validated = $request->validate([
-            'name'     => 'sometimes|required|string|max:255',
-            'email'    => 'sometimes|required|email|unique:users,email,' . $user->id,
-            'password' => 'sometimes|required|string|min:6',
-        ]);
-
-        if (isset($validated['password'])) {
-            $validated['password'] = Hash::make($validated['password']);
-        }
-
-        $user->update($validated);
-
-        return response()->json($user);
-    }
-
-    public function destroy(string $id)
-    {
-        $user = User::findOrFail($id);
-        $user->delete();
-
-        return response()->json(['message' => 'User deleted successfully.']);
+        $this->userservice->delete($id);
+        return response()->json(['message' => 'Deleted']);
     }
 }
