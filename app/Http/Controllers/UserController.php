@@ -18,7 +18,8 @@ class UserController extends Controller
 
     public function index(): JsonResponse
     {
-        return response()->json($this->userservice->all());
+        $users = $this->userservice->all();
+        return response()->json($users);
     }
 
     public function store(UserRequest $request): JsonResponse
@@ -29,7 +30,8 @@ class UserController extends Controller
 
     public function show($id): JsonResponse
     {
-        return response()->json($this->userservice->find($id));
+        $user = $this->userservice->find($id);
+        return response()->json($user);
     }
 
     public function update(UserRequest $request, $id): JsonResponse
