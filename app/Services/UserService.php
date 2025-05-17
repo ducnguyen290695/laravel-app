@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Repositories\UserRepository;
+use Illuminate\Database\Eloquent\Collection;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class UserService
 {
@@ -13,14 +15,20 @@ class UserService
         $this->userRepo = $userRepo;
     }
 
-    public function all()
+    public function all(): Collection
     {
         return $this->userRepo->getAll();
     }
 
     public function find($id)
     {
-        return $this->userRepo->getById($id);
+        $user = $this->userRepo->getById($id);
+
+         if(!$user) {
+             throw new NotFoundHttpException('User not found');
+         }
+
+         return $user;
     }
 
     public function create(array $data)

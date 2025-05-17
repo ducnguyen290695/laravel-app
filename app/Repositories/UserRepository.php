@@ -3,17 +3,18 @@
 namespace App\Repositories;
 
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 
 class UserRepository
 {
-    public function getAll()
+    public function getAll(): Collection
     {
         return User::all();
     }
 
     public function getById($id)
     {
-        return User::findOrFail($id);
+        return User::find($id);
     }
 
     public function create(array $data)
